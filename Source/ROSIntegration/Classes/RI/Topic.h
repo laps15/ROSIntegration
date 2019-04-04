@@ -19,6 +19,7 @@ enum class EMessageType : uint8
 {
 	String = 0,
 	Float32 = 1,
+	Twist = 2,
 };
 
 UCLASS(Blueprintable)
@@ -47,6 +48,7 @@ public:
 	void MarkAsDisconnected();
 	bool Reconnect(UROSIntegrationCore* ROSIntegrationCore);
 
+
 protected:
 
 	virtual FString GetDetailedInfoInternal() const override;
@@ -59,6 +61,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = ROS)
 	void OnFloat32Message(const float& Data);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = ROS)
+	void OnTwistMessage(const FVector& Linear, const FVector& Angular);
 
 	UPROPERTY()
 	UROSIntegrationCore* _ROSIntegrationCore;

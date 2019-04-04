@@ -172,6 +172,7 @@ UTopic::UTopic(const FObjectInitializer& ObjectInitializer)
 	{
 		SupportedMessageTypes.Add(EMessageType::String, TEXT("std_msgs/String"));
 		SupportedMessageTypes.Add(EMessageType::Float32, TEXT("std_msgs/Float32"));
+		SupportedMessageTypes.Add(EMessageType::Twist, TEXT("geometry_msgs/Twist"));
 	}
 }
 
@@ -325,6 +326,22 @@ bool UTopic::Subscribe()
 					{
 						if (!SelfPtr.IsValid()) return;
 						OnFloat32Message(Data);
+					});
+				}
+				break;
+			}
+			case EMessageType::Twist:
+			{
+				auto ConcreteTwistMessage = StaticCastSharedPtr<ROSMessages::geometry_msgs::Twist>(msg);
+				if (ConcreteTwistMessage.IsValid())
+				{
+					const FVector Linear(ConcreteTwistMessage->linear.x,ConcreteTwistMessage->linear.y,ConcreteTwistMessage->linear.z);
+					const FVector Angular(ConcreteTwistMessage->angular.x,ConcreteTwistMessage->angular.y,ConcreteTwistMessage->angular.z);
+					TWeakPtr<UTopic, ESPMode::ThreadSafe> SelfPtr(_SelfPtr);
+					AsyncTask(ENamedThreads::GameThread, [this, Linear, Angular, SelfPtr]()
+					{
+						if (!SelfPtr.IsValid()) return;
+						OnTwistMessage(Linear, Angular);
 					});
 				}
 				break;
